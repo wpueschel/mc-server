@@ -1,0 +1,4 @@
+tf/terraform.tfstate*
+tf/.terraform*
+tf/id_rsa
+tf/hosts
