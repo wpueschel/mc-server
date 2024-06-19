@@ -14,7 +14,7 @@
         name: minecraft
         create_home: yes
 
-    - name: install OpenJDK
+    - name: Install OpenJDK
       apt:
         name: openjdk-21-jre-headless
         state: present

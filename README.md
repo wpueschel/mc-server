@@ -14,10 +14,10 @@ First run terraform from the tf directory (se the README in the tf directory for
 tl;dr
 ```
 # Log into your Azure subscription
-cd tf
 az login
 az acount-set --subscription <your subscription>
 # Run terraform
+cd tf
 terraform init
 terraform apply -auto-approve
 # Check if machine is up
