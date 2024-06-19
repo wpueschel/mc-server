@@ -1,4 +1,3 @@
-
 resource "azurerm_network_security_group" "netsecgroup" {
   depends_on            = [
     azurerm_resource_group.rg,
@@ -20,8 +19,20 @@ resource "azurerm_network_security_group" "netsecgroup" {
   }
 
   security_rule {
-    name                       = "minecraft_server_access"
+    name                       = "node_exporter_access"
     priority                   = 1110
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "9100"
+    source_address_prefix      = "*"
+    destination_address_prefix = var.subnet_range
+  }
+
+  security_rule {
+    name                       = "minecraft_server_access"
+    priority                   = 1120
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"

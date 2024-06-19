@@ -1,0 +1,44 @@
+---
+
+  - name: Fetch node_exporter
+    unarchive:
+      src: "{{ node_exporter_url }}"
+      remote_src: yes
+      dest: /tmp
+    check_mode: no
+
+  - name: Create node_exporter textfile directory
+    file:
+      path: "{{ node_exporter_textfile_directory }}"
+      state: directory
+      mode: 0755
+      owner: root
+      group: root
+    when: node_exporter_textfile_directory is defined
+
+  - name: Copy node_exporter to /usr/local/bin
+    copy:
+      src: /tmp/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch }}/node_exporter
+      remote_src: yes
+      dest: "{{ node_exporter_binary }}"
+      mode: 0755
+    notify: Restart node_exporter
+
+  - name: Copy systemd service file to host
+    template:
+      src: node-exporter.service.j2
+      dest: /etc/systemd/system/node-exporter.service
+      mode: 0644
+    notify: Restart node_exporter
+    when: node_exporter_systemd_unit
+
+  - name: Copy rc.d script to host
+    template:
+      src: start-node_exporter.sh.j2
+      dest: /usr/local/etc/rc.d/start-node_exporter.sh
+      mode: 0755
+    when: not node_exporter_systemd_unit
+    notify: Restart node_exporter
+
+  - name: Flush handlers
+    meta: flush_handlers

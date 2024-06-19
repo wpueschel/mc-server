@@ -1,0 +1,18 @@
+---
+  - name: Restart node-exporter systemd service
+    listen: Restart node_exporter
+    systemd:
+      daemon_reload: yes
+      name: node-exporter
+      state: restarted
+      enabled: yes
+    when: node_exporter_systemd_unit
+
+  - name: Restart node_exporter rc.d service
+    listen: Restart node_exporter
+    shell: killall node_exporter || true
+    notify: Start node_exporter
+    when: not node_exporter_systemd_unit
+
+  - name: Start node_exporter
+    command: /usr/local/etc/rc.d/start-node_exporter.sh

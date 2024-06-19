@@ -1,0 +1,16 @@
+---
+node_exporter_arch: |-
+  {%- if 'aarch64' in ansible_architecture -%}
+  arm64
+  {%- else -%}
+  amd64
+  {%- endif -%}
+node_exporter_version: 1.6.1
+node_exporter_systemd_unit: true
+node_exporter_url: https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch }}.tar.gz
+node_exporter_binary: /usr/local/bin/node_exporter
+node_exporter_textfile_directory: /var/lib/node_exporter
+
+#node_exporter_textfile_directory: /var/lib/node_exporter
+node_exporter_enabled_collectors: []
+

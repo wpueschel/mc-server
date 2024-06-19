@@ -1,0 +1,33 @@
+---
+base_setup_home_domain: "{{ domain }}"
+
+#base_setup_dns_servers:
+#  - I AM A DEFAULT
+
+#base_setup_hosts:
+#  - I AM A DEFAULT HOST
+
+base_setup_base_packages:
+  - gpg
+  - gpg-agent
+  - ca-certificates
+  - apt-transport-https
+  - software-properties-common
+  - curl
+
+base_setup_packages:
+  - man-db
+  - manpages
+  - tmux
+  - unattended-upgrades
+  - apt-listchanges
+  - iptables-persistent
+  - fuse
+  - unzip
+  - jq
+
+base_setup_tmux_history:
+  root: 20000
+
+base_setup_journald:
+  system_max_use: 1G

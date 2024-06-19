@@ -1,0 +1,20 @@
+[Unit]
+Description=Prometheus Node Exporter
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/node_exporter
+{%- if node_exporter_enabled_collectors | length > 0 -%}
+{%- for collector in node_exporter_enabled_collectors %}
+ --collector.{{ collector }}
+{%- endfor -%}
+{%- endif %}
+{%- if node_exporter_textfile_directory %}
+ --collector.textfile.directory {{ node_exporter_textfile_directory }}
+{% endif %}
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

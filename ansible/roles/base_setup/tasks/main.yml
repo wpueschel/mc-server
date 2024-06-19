@@ -1,0 +1,125 @@
+---
+  - name: Install base packages
+    apt:
+      name: "{{ base_setup_base_packages }}"
+      update_cache: yes
+      cache_valid_time: 86400
+
+  - name: Install packages
+    apt:
+      name: "{{ base_setup_packages }}"
+      state: present
+      autoremove: yes
+      autoclean: yes
+
+  - name: Install additional host specific packages
+    apt:
+      name: "{{ base_setup_host_packages }}"
+      state: present
+      cache_valid_time: 86400
+      autoremove: yes
+      autoclean: yes
+    when: base_setup_host_packages is defined
+
+  - name: Get package information
+    package_facts:
+      manager: auto
+
+  - name: Add own CA
+    copy:
+      src: ca.crt
+      dest: /usr/local/share/ca-certificates/ca.crt
+      owner: root
+      group: root
+      mode: '0644'
+    notify: Update CA
+
+  # https://www.simplified.guide/ubuntu/remove-snapd
+  - name: Remove lxd snap package
+    snap:
+      name: lxd
+      state: absent
+    when: "'snapd' in ansible_facts.packages and ansible_distribution == 'Ubuntu'"
+
+  - name: Remove core20 snap package
+    snap:
+      name: core20
+      state: absent
+    when: "'snapd' in ansible_facts.packages and ansible_distribution == 'Ubuntu'"
+
+  - name: Remove snapd snap package
+    snap:
+      name: snapd
+      state: absent
+    when: "'snapd' in ansible_facts.packages and ansible_distribution == 'Ubuntu'"
+
+  - name: Remove snapd
+    apt:
+      name: snapd
+      state: absent
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Remove snapd dirs
+    file:
+      path: "{{ item }}"
+      state: absent
+    when: ansible_distribution == "Ubuntu"
+    with_items:
+      - /root/snap
+      - /var/cache/snapd
+
+  - name: Create hosts file
+    template:
+      src: hosts.j2
+      dest: /etc/hosts
+      mode: 0644
+    when: base_setup_hosts is defined
+    register: host_file
+    tags:
+      - host_file
+
+  - name: Stop resolvconf from overwriting /etc/resolv.conf
+    template:
+      src: resolvconf.conf.j2
+      dest: /etc/resolvconf.conf
+      mode:  0644
+    when: base_setup_dns_servers is defined
+
+  - name: Create resolv.conf
+    template:
+      src: resolv.conf.j2
+      dest: /etc/resolv.conf
+      mode:  0644
+    when: base_setup_dns_servers is defined
+
+  # Fix this, needs different template for debian
+  #- name: Setup unattended-upgrades
+    #template:
+      #src: "{{ item }}"
+      #dest: /etc/apt/apt.conf.d/{{ item.split('.')[0] }}
+      #mode: 0644
+    #with_items:
+      #- 50unattended-upgrades.j2
+      #- 20auto-upgrades.j2
+
+  - name: Create journald.conf
+    template:
+      src: journald.conf.j2
+      dest: /etc/systemd/journald.conf
+      mode: 0644
+    notify: Restart journald
+
+  - name: Create .tmux.conf
+    vars:
+      tmux_scrollback: "{{ item.value }}"
+      tmux_config: |-
+        {% if item.key == 'root' %}/root/.tmux.conf{% else %}/home/{{ item.key }}/.tmux.conf{% endif %}
+    template:
+      src: tmux.conf.j2
+      dest: "{{ tmux_config }}"
+      owner: "{{ item.key }}"
+      group: "{{ item.key }}"
+    with_dict: "{{ base_setup_tmux_history }}"
+
+  - name: Flush handlers
+    meta: flush_handlers

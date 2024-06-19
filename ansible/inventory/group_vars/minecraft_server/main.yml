@@ -1,0 +1,10 @@
+---
+ansible_ssh_private_key_file: ../tf/id_rsa
+ansible_user: ubuntu
+
+disclaimer: Managed by Ansible, changes will be overwritten.
+domain: minecraft.local
+
+minecraft_xmx: 4096M
+minecraft_xms: "{{ minecraft_xmx }}"
+

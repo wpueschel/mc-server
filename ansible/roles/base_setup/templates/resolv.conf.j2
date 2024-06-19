@@ -1,0 +1,6 @@
+# {{ disclaimer }}
+domain {{ base_setup_home_domain }}
+search {{ base_setup_home_domain }}
+{% for ns in base_setup_dns_servers -%}
+nameserver {{ ns }}
+{% endfor %}

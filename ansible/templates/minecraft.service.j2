@@ -1,0 +1,14 @@
+[Unit]
+Description=Minecraft Server
+After=network.target
+
+[Service]
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+User=minecraft
+WorkingDirectory=/home/minecraft
+ExecStart=java -Xmx{{ minecraft_xmx }} -Xms{{ minecraft_xms }} -jar server.jar nogui
+RestartSec=60
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
